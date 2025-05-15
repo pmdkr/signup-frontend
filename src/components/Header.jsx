@@ -1,11 +1,22 @@
 // src/components/Header.jsx
 import React from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { jwtDecode } from 'jwt-decode'; // ✅ Correct import
 
 const Header = () => {
-    // Get user info from Redux store
-    const user = useSelector(state => state.user.user);
+    // Get token from localStorage
+    const token = localStorage.getItem('token');
+    let user = null;
+
+    if (token) {
+        try {
+            const decoded = jwtDecode(token); // ✅ Use jwtDecode
+            user = decoded;
+            console.log(user);
+        } catch (err) {
+            console.error('Invalid token', err);
+        }
+    }
 
     return (
         <header className="bg-white shadow sticky top-0 z-10">
@@ -27,10 +38,10 @@ const Header = () => {
                             isActive ? "text-blue-500 font-semibold" : "text-gray-700 hover:text-blue-500"
                         }
                     >
-                        Contact Us
+                        Login
                     </NavLink>
 
-                    {/* Show user firstname if logged in */}
+                    {/* Show user firstname from decoded token if logged in */}
                     {user && (
                         <span className="ml-6 font-medium text-gray-700">
                             {user.firstname}

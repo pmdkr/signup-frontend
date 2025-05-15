@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { setUserInfo } from '../store/userSlice';
+import { useNavigate } from 'react-router-dom';
 
 const LoginSignupForm = () => {
     const [isLogin, setIsLogin] = useState(true);
@@ -18,6 +19,7 @@ const LoginSignupForm = () => {
     });
 
     const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -53,6 +55,7 @@ const LoginSignupForm = () => {
                 if (response.ok) {
                     alert("Login successful!");
                     dispatch(setUserInfo(data.user));
+                    navigate('/login');
                 } else {
                     alert(data.message || "Login failed.");
                 }
@@ -96,6 +99,7 @@ const LoginSignupForm = () => {
                         termsAccepted: false
                     });
                     setIsLogin(true);
+                    navigate('/login');
                 } else {
                     alert(data.message || "Signup failed.");
                 }
