@@ -39,7 +39,7 @@ const LoginSignupForm = () => {
 
         if (isLogin) {
             try {
-                const response = await fetch('http://localhost:3000/login', {
+                const response = await fetch('https://www.signup-backend.azurewebsites.net/login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -66,7 +66,7 @@ const LoginSignupForm = () => {
 
         } else {
             try {
-                const response = await fetch('http://localhost:3000/signup', {
+                const response = await fetch('https://www.signup-backend.azurewebsites.net/signup', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
