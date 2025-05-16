@@ -1,53 +1,53 @@
-// src/components/Header.jsx
-import React from 'react';
-import { Link, NavLink } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode'; // ✅ Correct import
+import React, { useEffect, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { logoutUser } from '../store/userSlice';
+import { useNavigate } from 'react-router-dom';
 
 const Header = () => {
-    // Get token from localStorage
-    const token = localStorage.getItem('token');
-    let user = null;
+    const userFromRedux = useSelector((state) => state.user.user);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
 
-    if (token) {
-        try {
-            const decoded = jwtDecode(token); // ✅ Use jwtDecode
-            user = decoded;
-            console.log(user);
-        } catch (err) {
-            console.error('Invalid token', err);
-        }
-    }
+    // Keep local state in sync with Redux
+    useEffect(() => {
+        setIsLoggedIn(!!userFromRedux);
+    }, [userFromRedux]);
+
+    const handleLogout = () => {
+        dispatch(logoutUser());
+        setIsLoggedIn(false);
+        navigate('/'); // After logout, redirect to login page
+    };
+
+    const handleLogin = () => {
+        navigate('/login');
+    };
 
     return (
-        <header className="bg-white shadow sticky top-0 z-10">
-            <div className="max-w-7xl mx-auto flex items-center justify-between p-4">
-                <Link to="/" className="text-xl font-bold text-blue-600">MyApp</Link>
-                <nav className="space-x-4 flex items-center">
-                    <NavLink
-                        to="/"
-                        className={({ isActive }) =>
-                            isActive ? "text-blue-500 font-semibold" : "text-gray-700 hover:text-blue-500"
-                        }
-                    >
-                        Home
-                    </NavLink>
-
-                    <NavLink
-                        to="/login"
-                        className={({ isActive }) =>
-                            isActive ? "text-blue-500 font-semibold" : "text-gray-700 hover:text-blue-500"
-                        }
+        <header className="flex justify-between items-center bg-gray-800 text-white p-4">
+            <h1 className="text-xl font-bold cursor-pointer" onClick={() => navigate('/')}>
+                MyApp
+            </h1>
+            <div>
+                {isLoggedIn ? (
+                    <div className="flex items-center space-x-4">
+                        <span>Hello, {userFromRedux?.firstname}!</span>
+                        <button
+                            className="bg-red-500 px-3 py-1 rounded hover:bg-red-600"
+                            onClick={handleLogout}
+                        >
+                            Logout
+                        </button>
+                    </div>
+                ) : (
+                    <button
+                        className="bg-blue-500 px-3 py-1 rounded hover:bg-blue-600 cursor-pointer"
+                        onClick={handleLogin}
                     >
                         Login
-                    </NavLink>
-
-                    {/* Show user firstname from decoded token if logged in */}
-                    {user && (
-                        <span className="ml-6 font-medium text-gray-700">
-                            {user.firstname}
-                        </span>
-                    )}
-                </nav>
+                    </button>
+                )}
             </div>
         </header>
     );

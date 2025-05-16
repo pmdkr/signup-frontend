@@ -1,7 +1,7 @@
 // src/components/LoginSignupForm.jsx
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { setUserInfo } from '../store/userSlice';
+import { setUser } from '../store/userSlice';
 import { useNavigate } from 'react-router-dom';
 
 const LoginSignupForm = () => {
@@ -37,56 +37,42 @@ const LoginSignupForm = () => {
             return;
         }
 
-        if (isLogin) {
-            try {
-                const response = await fetch('https://www.signup-backend.azurewebsites.net/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        email: formData.email,
-                        password: formData.password
-                    })
-                });
+        try {
+            const url = isLogin
+                ? 'https://signup-backend.azurewebsites.net/login'
+                : 'https://signup-backend.azurewebsites.net/signup';
 
-                const data = await response.json();
+            const payload = isLogin
+                ? { email: formData.email, password: formData.password }
+                : {
+                    firstname: formData.firstname,
+                    lastname: formData.lastname,
+                    email: formData.email,
+                    password: formData.password,
+                    address: formData.address,
+                    gender: formData.gender,
+                    country: formData.country,
+                    dob: formData.dob
+                };
 
-                if (response.ok) {
-                    alert("Login successful!");
-                    dispatch(setUserInfo(data.user));
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert(isLogin ? "Login successful!" : "Signup successful!");
+
+                if (isLogin) {
+                    // ✅ Directly store user data from response
+                    dispatch(setUser({ user: data.user }));
                     navigate('/login');
                 } else {
-                    alert(data.message || "Login failed.");
-                }
-            } catch (error) {
-                console.error("Login error:", error);
-                alert("Error connecting to server.");
-            }
-
-        } else {
-            try {
-                const response = await fetch('https://www.signup-backend.azurewebsites.net/signup', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        firstname: formData.firstname,
-                        lastname: formData.lastname,
-                        email: formData.email,
-                        password: formData.password,
-                        address: formData.address,
-                        gender: formData.gender,
-                        country: formData.country,
-                        dob: formData.dob  // ✅ ADD THIS LINE
-                    })
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    alert("Signup successful!");
                     setFormData({
                         firstname: '',
                         lastname: '',
@@ -100,13 +86,13 @@ const LoginSignupForm = () => {
                     });
                     setIsLogin(true);
                     navigate('/login');
-                } else {
-                    alert(data.message || "Signup failed.");
                 }
-            } catch (error) {
-                console.error("Signup error:", error);
-                alert("Error connecting to server.");
+            } else {
+                alert(data.message || (isLogin ? "Login failed." : "Signup failed."));
             }
+        } catch (error) {
+            console.error(isLogin ? "Login error:" : "Signup error:", error);
+            alert("Error connecting to server.");
         }
     };
 

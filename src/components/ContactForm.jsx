@@ -1,5 +1,7 @@
-// src/components/ContactForm.jsx
 import React, { useState } from 'react';
+import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const ContactForm = () => {
     const [formData, setFormData] = useState({
@@ -8,18 +10,37 @@ const ContactForm = () => {
         message: ''
     });
 
+    const [loading, setLoading] = useState(false);
+
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+
         if (!formData.name || !formData.email || !formData.message) {
-            alert('Please fill all fields');
+            toast.warning('Please fill all fields!');
             return;
         }
-        alert(`Message sent from ${formData.name} (${formData.email})`);
-        setFormData({ name: '', email: '', message: '' });
+
+        try {
+            setLoading(true);
+            const response = await axios.post('http://localhost:3000/contact', {
+                name: formData.name,
+                email: formData.email,
+                subject: 'Contact Form Submission',
+                message: formData.message
+            });
+
+            toast.success(response.data.message || 'Message sent successfully!');
+            setFormData({ name: '', email: '', message: '' });
+        } catch (error) {
+            console.error('Contact form submission error:', error);
+            toast.error('Failed to send message. Try again later.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -64,11 +85,15 @@ const ContactForm = () => {
                 </div>
                 <button
                     type="submit"
-                    className="w-full bg-blue-600 text-white py-3 rounded hover:bg-blue-700 transition"
+                    className="w-full bg-blue-600 text-white py-3 rounded hover:bg-blue-700 transition disabled:opacity-50"
+                    disabled={loading}
                 >
-                    Send Message
+                    {loading ? 'Sending...' : 'Send Message'}
                 </button>
             </form>
+
+            {/* Toast Container */}
+            <ToastContainer position="top-right" autoClose={3000} />
         </div>
     );
 };
