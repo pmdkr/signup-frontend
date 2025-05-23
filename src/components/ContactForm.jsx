@@ -26,7 +26,7 @@ const ContactForm = () => {
 
         try {
             setLoading(true);
-            const response = await axios.post('http://localhost:3000/contact', {
+            const response = await axios.post('https://signupbackend.azurewebsites.net/contact', {
                 name: formData.name,
                 email: formData.email,
                 subject: 'Contact Form Submission',

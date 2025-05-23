@@ -39,8 +39,8 @@ const LoginSignupForm = () => {
 
         try {
             const url = isLogin
-                ? 'http://localhost:3000/login'
-                : 'http://localhost:3000/signup';
+                ? 'https://signupbackend.azurewebsites.net/login'
+                : 'https://signupbackend.azurewebsites.net/signup';
 
             const payload = isLogin
                 ? { email: formData.email, password: formData.password }
